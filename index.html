@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -125,37 +125,47 @@
   </div>
 
   <script>
-    function capitalizeFirst(str) {
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    }
+  function capitalizeFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
-    function updateDateTime() {
-      const now = new Date();
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      let dateStr = now.toLocaleDateString('it-IT', options);
+  const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const months = ["January", "February", "March", "April", "May", "June",
+                  "July", "August", "September", "October", "November", "December"];
 
-      // Capitalizza giorno della settimana e mese
-      const parts = dateStr.split(' ');
-      if (parts.length >= 4) {
-        parts[0] = capitalizeFirst(parts[0]); // giorno
-        parts[2] = capitalizeFirst(parts[2]); // mese
-      }
-      const date = parts.join(' ');
+  function isDST(date) {
+    // In Italia DST inizia ultima domenica di marzo e termina ultima domenica di ottobre
+    const year = date.getFullYear();
+    const start = new Date(year, 2, 31); // Marzo
+    while (start.getDay() !== 0) start.setDate(start.getDate() - 1);
+    const end = new Date(year, 9, 31); // Ottobre
+    while (end.getDay() !== 0) end.setDate(end.getDate() - 1);
+    return date >= start && date < end;
+  }
 
-      const time = now.toLocaleTimeString('it-IT');
+  function updateDateTime() {
+    const now = new Date();
 
-      // Aggiorna HTML
-      document.getElementById('date-text').textContent = date;
-      document.getElementById('time-text').textContent = time;
+    const weekday = capitalizeFirst(weekdays[now.getDay()]);
+    const month = capitalizeFirst(months[now.getMonth()]);
+    const day = now.getDate();
+    const year = now.getFullYear();
 
-      // Cambia icona in base all'orario: 6-18 giorno, altrimenti notte
-      const hour = now.getHours();
-      const icon = hour >= 6 && hour < 18 ? '☀️' : '🌙';
-      document.getElementById('time-icon').textContent = icon;
-    }
+    const dateStr = `${weekday}, ${month} ${day} ${year}`;
 
-    setInterval(updateDateTime, 1000);
-    updateDateTime();
-  </script>
+    const tz = isDST(now) ? 'CEST' : 'CET';
+    const timeStr = now.toLocaleTimeString('en-GB', { hour12: false }) + ' ' + tz;
+
+    document.getElementById('date-text').textContent = dateStr;
+    document.getElementById('time-text').textContent = timeStr;
+
+    // Cambia icona giorno/notte
+    const hour = now.getHours();
+    document.getElementById('time-icon').textContent = hour >= 6 && hour < 18 ? '☀️' : '🌙';
+  }
+
+  setInterval(updateDateTime, 1000);
+  updateDateTime();
+</script>
 </body>
 </html>
