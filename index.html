@@ -3,18 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>girgenti.org</title>
+  <title>Server Status - girgenti.org</title>
   <style>
     body {
       margin: 0;
       height: 100vh;
-      background: #fff;
-      color: #000;
       display: flex;
       justify-content: center;
       align-items: center;
       font-family: 'Inter', sans-serif;
       position: relative;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    /* Modalità chiara */
+    .light-mode {
+      background: #ededed;
+      color: #000;
+    }
+
+    /* Modalità scura */
+    .dark-mode {
+      background: #1a1a1a;
+      color: #fff;
     }
 
     /* Contenitore verticale icona, data, ora */
@@ -26,7 +37,6 @@
       align-items: center;
       gap: 5px;
       font-size: 1rem;
-      color: #555;
       letter-spacing: 1px;
     }
 
@@ -54,7 +64,7 @@
     }
 
     .site-name {
-      font-size: 0.65rem; /* piccolo */
+      font-size: 0.65rem;
       color: #888;
       letter-spacing: 1px;
       margin-bottom: 4px;
@@ -71,7 +81,6 @@
 
     .sub-status {
       font-size: 0.85rem;
-      color: #555;
       text-transform: none;
       letter-spacing: 1px;
     }
@@ -107,7 +116,7 @@
     }
   </style>
 </head>
-<body>
+<body class="light-mode">
   <div class="datetime-container">
     <div class="time-icon" id="time-icon">☀️</div>
     <div class="date-text" id="date-text"></div>
@@ -134,7 +143,6 @@
                   "July", "August", "September", "October", "November", "December"];
 
   function isDST(date) {
-    // In Italia DST inizia ultima domenica di marzo e termina ultima domenica di ottobre
     const year = date.getFullYear();
     const start = new Date(year, 2, 31); // Marzo
     while (start.getDay() !== 0) start.setDate(start.getDate() - 1);
@@ -159,9 +167,18 @@
     document.getElementById('date-text').textContent = dateStr;
     document.getElementById('time-text').textContent = timeStr;
 
-    // Cambia icona giorno/notte
+    // Cambia icona e tema giorno/notte
     const hour = now.getHours();
-    document.getElementById('time-icon').textContent = hour >= 6 && hour < 18 ? '☀️' : '🌙';
+    const body = document.body;
+    if (hour >= 6 && hour < 18) {
+      document.getElementById('time-icon').textContent = '☀️';
+      body.classList.add('light-mode');
+      body.classList.remove('dark-mode');
+    } else {
+      document.getElementById('time-icon').textContent = '🌙';
+      body.classList.add('dark-mode');
+      body.classList.remove('light-mode');
+    }
   }
 
   setInterval(updateDateTime, 1000);
